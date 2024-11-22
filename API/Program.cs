@@ -1,4 +1,5 @@
 using API.Middlewares;
+using Infra.IoC;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+
+#region LocalInjection
+
+builder.Services.AddLocalServices(builder.Configuration);
+builder.Services.AddLocalUnitOfWork(builder.Configuration);
+
+#endregion
 
 var app = builder.Build();
 
