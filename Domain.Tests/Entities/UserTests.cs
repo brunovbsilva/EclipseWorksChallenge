@@ -20,7 +20,7 @@ namespace Domain.Tests.Entities
         public void ShouldCreate()
         {
             // Arrange & Act
-            var user = User.Factory.Create();
+            var user = User.Factory.Create(RoleEnum.MANAGER);
 
             // Assert
             Assert.NotNull(user);

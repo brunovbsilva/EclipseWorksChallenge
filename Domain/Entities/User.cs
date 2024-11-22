@@ -1,12 +1,18 @@
-﻿namespace Domain.Entities
+﻿using Domain.Entities.Enums;
+
+namespace Domain.Entities
 {
     public class User : BaseEntity
     {
         protected User() {}
+        public RoleEnum Role { get; init; }
         public virtual IEnumerable<Project> Projects { get; set; } = [];
         public static class Factory
         {
-            public static User Create() => new User();
+            public static User Create(RoleEnum role) => new User
+            {
+                Role = role
+            };
         }
         public void AddProject()
         {
