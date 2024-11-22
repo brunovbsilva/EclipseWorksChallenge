@@ -10,6 +10,7 @@ namespace Domain.Entities
         public DateTime DueDate { get; private set; }
         public TaskStatusEnum Status { get; private set; }
         public PriorityEnum Priority { get; init; }
+        public IEnumerable<string> Comments { get; private set; } = [];
 
         public static class Factory
         {
@@ -22,6 +23,11 @@ namespace Domain.Entities
                     Status = status,
                     Priority = priority
                 };
+        }
+
+        public void AddComment(string comment)
+        {
+            Comments = Comments.Append(comment);
         }
     }
 }
