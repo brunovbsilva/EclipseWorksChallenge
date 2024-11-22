@@ -8,5 +8,9 @@
         {
             public static User Create() => new User();
         }
+        public void AddProject()
+        {
+            Projects = Projects.Append(Project.Factory.Create());
+        }
     }
 }
