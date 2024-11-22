@@ -1,6 +1,6 @@
 ﻿namespace Domain.Entities.Enums
 {
-    public enum TaskStatus
+    public enum TaskStatusEnum
     {
         PENDING,
         IN_PROGRESS,

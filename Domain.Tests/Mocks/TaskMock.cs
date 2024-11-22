@@ -1,4 +1,4 @@
-﻿using Bogus.DataSets;
+﻿using Domain.Entities.Enums;
 
 namespace Domain.Tests.Mocks
 {
@@ -9,7 +9,8 @@ namespace Domain.Tests.Mocks
                 _faker.Lorem.Lines(1),
                 _faker.Lorem.Lines(3),
                 _faker.Date.Future(),
-                _faker.Random.Enum<TaskStatus>()
+                _faker.Random.Enum<TaskStatusEnum>(),
+                _faker.Random.Enum<PriorityEnum>()
             );
     }
 }
