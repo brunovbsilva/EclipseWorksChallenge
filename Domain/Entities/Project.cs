@@ -14,5 +14,6 @@ namespace Domain.Entities
         public void AddTask(Task task) => Tasks = Tasks.Append(task);
         public void AddTask(string title, string description, DateTime dueDate, TaskStatusEnum status, PriorityEnum priority)
             => AddTask(Task.Factory.Create(title, description, dueDate, status, priority));
+        public bool HasPendingTask() => Tasks.Any(t => t.Status == TaskStatusEnum.PENDING);
     }
 }
