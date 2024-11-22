@@ -1,0 +1,2 @@
+# EclipseWorksChallenge
+ A challenge project
