@@ -1,6 +1,6 @@
-﻿using Application.Services;
+﻿using Application.Interfaces;
 
-namespace Application.Interfaces
+namespace Application.Services
 {
     public class ProjectService : IProjectService
     {
