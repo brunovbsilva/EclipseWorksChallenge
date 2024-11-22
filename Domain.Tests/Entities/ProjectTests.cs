@@ -38,5 +38,21 @@ namespace Domain.Tests.Entities
             // Assert
             Assert.Contains(task, project.Tasks);
         }
+
+        [Fact]
+        public void ShouldNotAddTaskIfAlreadyReachedLimit()
+        {
+            // Arrange
+            var project = _projectMock.GetEntity();
+            var tasks = _taskMock.GetEnumerableWithEntities(20);
+            foreach (var task in tasks) project.AddTask(task);
+            var taskToAdd = _taskMock.GetEntity();
+
+            // Act
+            var action = () => project.AddTask(taskToAdd);
+
+            // Assert
+            Assert.Throws<ArgumentException>(action);
+        }
     }
 }
