@@ -1,0 +1,21 @@
+services:
+  api:
+    image: ${DOCKER_REGISTRY-}api
+    container_name: challenge
+    build:
+      context: .
+      dockerfile: API/Dockerfile
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+  
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: db
+    ports:
+      - "1433:1433"
+    environment:
+      - "ACCEPT_EULA=Y"
+      - "MSSQL_SA_PASSWORD=A1B2C3@123"

@@ -30,5 +30,10 @@ namespace Domain.Entities
             if (project.HasPendingTask()) throw new ArgumentException("Project has pending tasks, you should finish them first");
             Projects.Remove(project);
         }
+
+        public void CheckForReport()
+        {
+            if (Role != RoleEnum.MANAGER) throw new ArgumentException("You do not have permission to access this resource");
+        }
     }
 }

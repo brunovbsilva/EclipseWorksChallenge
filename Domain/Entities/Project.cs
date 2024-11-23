@@ -28,5 +28,11 @@ namespace Domain.Entities
             User = user;
             UserId = user.Id;
         }
+        public void CheckForListTask(Guid _userId) => CheckForBelong(_userId);
+        public void CheckForCreateTask(Guid _userId) => CheckForBelong(_userId);
+        private void CheckForBelong(Guid _userId)
+        {
+            if (UserId != _userId) throw new ArgumentException("The project do not belongs to you");
+        }
     }
 }

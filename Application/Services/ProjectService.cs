@@ -38,7 +38,7 @@ namespace Application.Services
         {
             var project = await _projectRepository.GetByIDAsync(request.ProjectId);
             if (project == null) throw new ArgumentException("Project not found");
-            if (project.UserId != _userId) throw new ArgumentException("The project do not belongs to you");
+            project.CheckForCreateTask(_userId);
             var task = project.AddTask(request.Title, request.Description, request.DueDate, request.Priority);
             await _projectRepository.SaveChangesAsync();
             await AddLog(_userId, TaskConstants.CREATE_TASK, null, (TaskDto)task);
@@ -56,7 +56,7 @@ namespace Application.Services
         {
             var project = await _projectRepository.GetByIDAsync(projectId);
             if (project == null) throw new ArgumentException("Project not found");
-            if (project.UserId != _userId) throw new ArgumentException("The project do not belongs to you");
+            project.CheckForListTask(_userId);
             return new GenericResponse<IEnumerable<TaskDto>>(project.Tasks.Select(t => (TaskDto)t));
         }
 
@@ -64,7 +64,7 @@ namespace Application.Services
         {
             var task = await _taskRepository.GetByIDAsync(taskId);
             if (task == null) throw new ArgumentException("Task not found");
-            if (task.Project.UserId != _userId) throw new ArgumentException("The task do not belongs to you");
+            task.CheckForRemove(_userId);
             await AddLog(_userId, TaskConstants.DELETE_TASK, (TaskDto)task, null);
             await _taskRepository.DeleteAsync(task);
             return new GenericResponse<object>(null);
@@ -74,8 +74,7 @@ namespace Application.Services
         {
             var task = await _taskRepository.GetByIDAsync(request.TaskId);
             if (task == null) throw new ArgumentException("Task not found");
-            if (task.Project.UserId != _userId) throw new ArgumentException("The task do not belongs to you");
-            if (task.Status == TaskStatusEnum.DONE) throw new ArgumentException("Completed tasks cannot be updated");
+            task.CheckForUpdate(_userId);
             var taskBefore = (TaskDto)task;
             task.Update(request.Title, request.Description, request.DueDate, request.Status);
             await _taskRepository.SaveChangesAsync();
@@ -92,7 +91,7 @@ namespace Application.Services
         {
             var task = await _taskRepository.GetByIDAsync(request.TaskId);
             if (task == null) throw new ArgumentException("Task not found");
-            if (task.Project.UserId != _userId) throw new ArgumentException("The task do not belongs to you");
+            task.CheckForComment(_userId);
             var commentsBefore = task.Comments.Any() ? task.Comments.Select(x => x.Value).ToList() : null;
             task.AddComment(request.Comment);
             await _taskRepository.SaveChangesAsync();
@@ -103,7 +102,7 @@ namespace Application.Services
         {
             var user = await _userRepository.GetByIDAsync(_userId);
             if (user == null) throw new ArgumentException("User not found");
-            if (user.Role != RoleEnum.MANAGER) throw new ArgumentException("You do not have permission to access this resource");
+            user.CheckForReport();
             return new GenericResponse<IEnumerable<ReportResponse>>(await _userRepository.GetReport());
         }
         private async System.Threading.Tasks.Task AddLog(Guid _userId, string action, object? from, object? to)

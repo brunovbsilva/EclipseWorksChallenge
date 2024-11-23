@@ -1,4 +1,5 @@
-﻿using Domain.Common.Project;
+﻿using System.Threading.Tasks;
+using Domain.Common.Project;
 using Domain.Entities.Enums;
 
 namespace Domain.Entities
@@ -47,6 +48,18 @@ namespace Domain.Entities
         public void UpdateProject(Project project){
             Project = project;
             ProjectId = project.Id;
+        }
+
+        public void CheckForUpdate(Guid _userId)
+        {
+            CheckBelongs(_userId);
+            if (Status == TaskStatusEnum.DONE) throw new ArgumentException("Completed tasks cannot be updated");
+        }
+        public void CheckForRemove(Guid _userId) => CheckBelongs(_userId);
+        public void CheckForComment(Guid _userId) => CheckBelongs(_userId);
+        private void CheckBelongs(Guid _userId)
+        {
+            if (Project.UserId != _userId) throw new ArgumentException("The task do not belongs to you");
         }
     }
 }
