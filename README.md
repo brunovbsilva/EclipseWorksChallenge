@@ -2,11 +2,6 @@
 
 Este é um projeto proposto pela empresa EclipseWorks para avaliação de conhecimentos em desenvolvimento de software.
 
-# Requisitos
-
-Visual Studio 2022
-Docker
-
 # Como executar pelo Visual Studio
 
 1. Abra o projeto em seu Visual Studio.
