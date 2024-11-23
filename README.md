@@ -1,35 +1,76 @@
 # EclipseWorksChallenge
 
-Este é um projeto proposto pela empresa EclipseWorks para avaliação de conhecimentos em desenvolvimento de software.
+Este é um projeto proposto pela **EclipseWorks** como parte do processo de avaliação de conhecimentos em desenvolvimento de software. O objetivo é implementar um sistema básico para gerenciamento de projetos e tarefas, contemplando boas práticas de desenvolvimento e organização de código.
 
-# Como executar pelo Visual Studio
+---
 
-1. Abra o projeto em seu Visual Studio.
-2. Selecione o item de inicialização "docker-compose" e execute o projeto.
+## 🚀 **Como executar o projeto**
 
-# Executar via terminal
+### Usando o Visual Studio
+1. Abra o projeto no **Visual Studio**.
+2. Selecione o item de inicialização **`docker-compose`**.
+3. Execute o projeto pressionando **F5** ou clicando em **Executar**.
 
-1. em seu CMD, navegue até o diretório do projeto.
-2. execute o comando: `docker compose -p {container-name} up --build -d`
+### Via terminal
+1. Abra o **CMD** ou o terminal de sua preferência.
+2. Navegue até o diretório raiz do projeto.
+3. Execute o comando:
+   ```bash
+   docker compose -p {container-name} up --build -d
 
-# Perguntas ao PO
+---
 
-Há algumas incongruencias em relação as regras de negócio e os modelos de entidades propostos:
-- "Uma tarefa possui título, uma descrição, uma data de vencimento e um status", porém, há uma regra de prioridade que não foi contemplada no modelo de entidade.
-- "Um usuário pode criar, visualizar e gerenciar vários projetos.", mas, há regras de deleção.
-- "Os usuários podem adicionar comentários a uma tarefa para fornecer informações adicionais.", porém, não há na comentários entidade proposta.
-- Há a necessidade de histórico e logs, porém, não há requisições feitas ao aplicativo para salvar logs no banco de dados.
+### 📝 **Postman Collection**
 
-# Pontos de Melhoria
+[Baixar Collection](https://drive.google.com/file/d/1OngGICsW2S_8doC4KLDnLMSr4UHUyYLK/view?usp=sharing)
 
-O projeto, apesar de simples está bem estruturado, porém, há alguns pontos de melhoria:
-- Separar mais as responsabilidades em mais controllers, assim como separar também os serviços.
-- Utilizar um sistema de Cache para melhorar a performance.
-- Melhorar o sistema de logs de ações que são salvas no banco de dados.
-- Implementar um sistema de logs de erros para rastreabilidade em um middleware.
-- Adicionar novas propriedades no usuário para ser mais fácil de identificar o mesmo.
+---
 
-notas: 
-- O base controller possui um mock de usuário logado para simular a autenticação, que viria de um outro micro-serviço e, pelo mesmo motivo, não foi feito a autenticação via JWT.
-- Há como adicionar volumes no docker-compose para persistir os dados do banco de dados, porém, como é apenas um projeto para avaliação de conhecimentos, não foi adicionado.
+## ❓ **Dúvidas para o Product Owner (PO)**
 
+Durante o desenvolvimento, identificamos algumas inconsistências entre as regras de negócio e os modelos de entidades propostos. São elas:
+
+1. **Regra de Prioridade**: 
+   - As tarefas têm **título**, **descrição**, **data de vencimento** e **status**, mas há menção a um sistema de **prioridade** que não está presente no modelo atual.
+   
+2. **Gerenciamento de Projetos**: 
+   - A especificação diz que "um usuário pode criar, visualizar e gerenciar vários projetos". No entanto, há menção a regras de **deleção de projetos**.
+
+3. **Comentários em Tarefas**: 
+   - É mencionado que "os usuários podem adicionar comentários às tarefas para fornecer informações adicionais", mas o modelo de entidade não contempla um campo ou relação para comentários.
+
+4. **Histórico e Logs**:
+   - Existe a necessidade de histórico de alterações e logs de ações realizadas, mas o modelo proposto não inclui requisições para salvar logs no banco de dados.
+
+---
+
+## 🔧 **Pontos de Melhoria**
+
+Embora o projeto esteja bem estruturado, há oportunidades para aprimorar sua organização e desempenho:
+
+### Organização e Arquitetura
+- **Separação de Responsabilidades**:
+  - Dividir as responsabilidades em mais controllers e serviços para facilitar a escalabilidade e manutenção do código.
+
+- **Novas Propriedades para Usuários**:
+  - Adicionar atributos como **nome completo**, **e-mail** e **foto de perfil** para facilitar a identificação e personalização.
+
+### Performance e Logs
+- **Sistema de Cache**:
+  - Implementar um sistema de cache para reduzir a carga no banco de dados e melhorar a performance.
+
+- **Logs de Ações e Erros**:
+  - Ampliar o sistema de logs para salvar todas as ações relevantes no banco de dados.
+  - Adicionar um middleware dedicado para registrar logs de erros e garantir rastreabilidade.
+
+### Persistência de Dados
+- Adicionar volumes no **`docker-compose`** para garantir a persistência dos dados do banco de dados.
+
+### Autenticação
+- O mock de autenticação presente no **BaseController** simula um usuário logado. Em um ambiente real, a autenticação seria realizada via **JWT** ou outro sistema centralizado.
+
+---
+
+### Observação Final
+
+Este projeto tem como objetivo avaliar conhecimentos técnicos. Assim, algumas funcionalidades, como autenticação completa e configuração de persistência de dados no Docker, foram simplificadas para agilizar o desenvolvimento e foco na estruturação geral.
