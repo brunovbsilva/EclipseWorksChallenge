@@ -15,7 +15,7 @@ jobs:
         with:
           files: '${{ github.workspace }}/API/appsettings.json'
         env:
-          ConnectionStrings.DefaultConnection: Server=db;Database=eclipse-works;User Id=sa;Password=A1B2C3@123;TrustServerCertificate=true;
+          ConnectionStrings.DefaultConnection: Server=db;Database=eclipse-works;User Id=sa;Password=A1B2C3@123;TrustServerCertificate=true
 
       - name: build
         run: |

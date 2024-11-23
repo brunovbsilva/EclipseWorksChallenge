@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using API;
 using API.Middlewares;
 using Infra.IoC;
 
@@ -21,6 +22,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.ApplyMigrations();
 }
 
 
