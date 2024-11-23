@@ -93,20 +93,6 @@ namespace Application.Tests.Services
         }
 
         [Fact]
-        public async Task CreateTask_ShouldThrowException_WhenUserNotFound()
-        {
-            // Arrange
-            var user = _userMock.GetEntity();
-            var project = user.AddProject();
-            _projectRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(project);
-            _userRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>()));
-            // Act
-            var action = async () => await _service.CreateTask(GetCreateTaskMock(project.Id), user.Id);
-            // Assert
-            await Assert.ThrowsAsync<ArgumentException>(action);
-        }
-
-        [Fact]
         public async Task CreateTask_ShouldThrowException_WhenProjectDoNotBelongsToUser()
         {
             // Arrange

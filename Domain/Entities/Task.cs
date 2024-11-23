@@ -12,7 +12,7 @@ namespace Domain.Entities
         public TaskStatusEnum Status { get; private set; }
         public PriorityEnum Priority { get; init; }
         public Guid ProjectId { get; private set; }
-        public virtual IEnumerable<Comment> Comments { get; private set; } = [];
+        public virtual List<Comment> Comments { get; private set; } = [];
         public virtual Project Project { get; private set; }
 
         public static class Factory
@@ -32,7 +32,7 @@ namespace Domain.Entities
         {
             var commentModel = Comment.Factory.Create(comment);
             commentModel.UpdateTask(this);
-            Comments = Comments.Append(commentModel);
+            Comments.Add(commentModel);
             return commentModel;
         }
         public void SetStatus(TaskStatusEnum status) => Status = status;

@@ -24,18 +24,16 @@ namespace Application.Services
             if (user == null) throw new ArgumentException("User not found");
             var project = user.AddProject();
             await _userRepository.SaveChangesAsync();
-            return new GenericResponse<ProjectDto>();
+            return new GenericResponse<ProjectDto>(project);
         }
 
         public async Task<BaseResponse<TaskDto>> CreateTask(CreateTaskRequest request, Guid _userId)
         {
             var project = await _projectRepository.GetByIDAsync(request.ProjectId);
             if (project == null) throw new ArgumentException("Project not found");
-            var user = await _userRepository.GetByIDAsync(_userId);
-            if (user == null) throw new ArgumentException("User not found");
-            if (!user.Projects.Contains(project)) throw new ArgumentException("The project do not belongs to you");
+            if (project.UserId != _userId) throw new ArgumentException("The project do not belongs to you");
             var task = project.AddTask(request.Title, request.Description, request.DueDate, request.Priority);
-            await _taskRepository.InsertWithSaveChangesAsync(task);
+            await _projectRepository.SaveChangesAsync();
             return new GenericResponse<TaskDto>(task);
         }
 
@@ -50,9 +48,7 @@ namespace Application.Services
         {
             var project = await _projectRepository.GetByIDAsync(projectId);
             if (project == null) throw new ArgumentException("Project not found");
-            var user = await _userRepository.GetByIDAsync(_userId);
-            if (user == null) throw new ArgumentException("User not found");
-            if (!user.Projects.Contains(project)) throw new ArgumentException("The project do not belongs to you");
+            if (project.UserId != _userId) throw new ArgumentException("The project do not belongs to you");
             return new GenericResponse<IEnumerable<TaskDto>>(project.Tasks.Select(t => (TaskDto)t));
         }
 
@@ -60,10 +56,8 @@ namespace Application.Services
         {
             var task = await _taskRepository.GetByIDAsync(taskId);
             if (task == null) throw new ArgumentException("Task not found");
-            var project = await _projectRepository.GetByIDAsync(task.ProjectId);
-            if (project!.UserId != _userId) throw new ArgumentException("The task do not belongs to you");
-            project.RemoveTask(task.Id);
-            await _taskRepository.SaveChangesAsync();
+            if (task.Project.UserId != _userId) throw new ArgumentException("The task do not belongs to you");
+            await _taskRepository.DeleteAsync(task);
             return new GenericResponse<object>(null);
         }
 
