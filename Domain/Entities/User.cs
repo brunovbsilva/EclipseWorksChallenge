@@ -15,9 +15,11 @@ namespace Domain.Entities
                 Role = role
             };
         }
-        public void AddProject()
+        public Project AddProject()
         {
-            Projects = Projects.Append(Project.Factory.Create(Id));
+            var project = Project.Factory.Create(Id);
+            Projects = Projects.Append(project);
+            return project;
         }
 
         public void RemoveProject(Guid projectId)
