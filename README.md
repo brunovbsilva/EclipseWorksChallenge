@@ -30,6 +30,6 @@ O projeto, apesar de simples está bem estruturado, porém, há alguns pontos de
 - Adicionar novas propriedades no usuário para ser mais fácil de identificar o mesmo.
 
 notas: 
-- O base controller possui um mock de usuário logado para simular a autenticação, que viria de um outro micro-serviço.
+- O base controller possui um mock de usuário logado para simular a autenticação, que viria de um outro micro-serviço e, pelo mesmo motivo, não foi feito a autenticação via JWT.
 - Há como adicionar volumes no docker-compose para persistir os dados do banco de dados, porém, como é apenas um projeto para avaliação de conhecimentos, não foi adicionado.
 
