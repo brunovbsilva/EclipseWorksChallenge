@@ -67,7 +67,8 @@ namespace Domain.Tests.Entities
             user.AddProject();
             var project = user.Projects.First();
             var task = _taskMock.GetEntity();
-            project.AddTask(task.Title, task.Description, task.DueDate, TaskStatusEnum.PENDING, task.Priority);
+            var taskToAdd = project.AddTask(task.Title, task.Description, task.DueDate, task.Priority);
+            taskToAdd.SetStatus(TaskStatusEnum.PENDING);
 
             // Act
             var action = () => user.RemoveProject(project.Id);

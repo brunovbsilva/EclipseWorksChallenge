@@ -1,4 +1,5 @@
-﻿using Domain.Entities.Enums;
+﻿using Domain.Common.Project;
+using Domain.Entities.Enums;
 
 namespace Domain.Entities
 {
@@ -16,10 +17,9 @@ namespace Domain.Entities
 
         public static class Factory
         {
-            public static Task Create(Guid projectId, string title, string description, DateTime dueDate, TaskStatusEnum status, PriorityEnum priority)
+            public static Task Create(string title, string description, DateTime dueDate, TaskStatusEnum status, PriorityEnum priority)
                 => new Task
                 {
-                    ProjectId = projectId,
                     Title = title,
                     Description = description,
                     DueDate = dueDate,
@@ -28,9 +28,24 @@ namespace Domain.Entities
                 };
         }
 
-        public void AddComment(string comment)
+        public Comment AddComment(string comment)
         {
-            Comments = Comments.Append(Comment.Factory.Create(Id, comment));
+            var commentModel = Comment.Factory.Create(comment);
+            commentModel.UpdateTask(this);
+            Comments = Comments.Append(commentModel);
+            return commentModel;
+        }
+        public void SetStatus(TaskStatusEnum status) => Status = status;
+
+        public void Update(string title, string description, DateTime dueDate)
+        {
+            Title = title;
+            Description = description;
+            DueDate = dueDate;
+        }
+        public void UpdateProject(Project project){
+            Project = project;
+            ProjectId = project.Id;
         }
     }
 }

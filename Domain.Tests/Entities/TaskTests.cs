@@ -18,7 +18,6 @@ namespace Domain.Tests.Entities
         {
             // Arrange & Act
             var task = Domain.Entities.Task.Factory.Create(
-                Guid.NewGuid(),
                 _faker.Lorem.Sentence(),
                 _faker.Lorem.Paragraph(),
                 _faker.Date.Future(),
