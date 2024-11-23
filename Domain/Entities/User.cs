@@ -7,6 +7,7 @@ namespace Domain.Entities
         protected User() {}
         public RoleEnum Role { get; init; }
         public virtual IEnumerable<Project> Projects { get; set; } = [];
+        public virtual IEnumerable<Log> Logs { get; set; } = [];
         public static class Factory
         {
             public static User Create(RoleEnum role) => new User
@@ -16,7 +17,7 @@ namespace Domain.Entities
         }
         public void AddProject()
         {
-            Projects = Projects.Append(Project.Factory.Create());
+            Projects = Projects.Append(Project.Factory.Create(Id));
         }
 
         public void RemoveProject(Guid projectId)

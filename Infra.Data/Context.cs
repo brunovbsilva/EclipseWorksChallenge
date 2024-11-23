@@ -11,6 +11,7 @@ namespace Infra.Data
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ProjectConfiguration).Assembly);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(TaskConfiguration).Assembly);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(LogConfiguration).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(CommentConfiguration).Assembly);
             base.OnModelCreating(modelBuilder);
         }
     }

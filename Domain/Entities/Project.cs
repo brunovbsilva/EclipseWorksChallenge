@@ -4,11 +4,13 @@ namespace Domain.Entities
 {
     public class Project : BaseEntity
     {
-        protected Project() {}
+        protected Project() { }
+        public Guid UserId { get; private set; }
         public virtual IEnumerable<Task> Tasks { get; private set; } = [];
+        public virtual User User { get; private set; }
         public static class Factory
         {
-            public static Project Create() => new Project();
+            public static Project Create(Guid userId) => new Project { UserId = userId };
         }
 
         public void AddTask(Task task) 
@@ -17,7 +19,7 @@ namespace Domain.Entities
             Tasks = Tasks.Append(task);
         }
         public void AddTask(string title, string description, DateTime dueDate, TaskStatusEnum status, PriorityEnum priority)
-            => AddTask(Task.Factory.Create(title, description, dueDate, status, priority));
+            => AddTask(Task.Factory.Create(Id, title, description, dueDate, status, priority));
         public bool HasPendingTask() => Tasks.Any(t => t.Status == TaskStatusEnum.PENDING);
     }
 }

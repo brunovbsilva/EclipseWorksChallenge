@@ -5,19 +5,21 @@ namespace Domain.Entities
     public class Log : BaseEntity
     {
         protected Log() { }
-        string Type { get; init; }
-        string ObjectFrom { get; init; }
-        string ObjectTo { get; init; }
-        DateTime Date { get; init; }
-        Guid UserId { get; init; }
+        public string Type { get; init; }
+        public string ObjectFrom { get; init; }
+        public string ObjectTo { get; init; }
+        public DateTime Date { get; init; }
+        public Guid UserId { get; init; }
+        public virtual User User { get; init; }
         public static class Factory
         {
-            public static Log Create(string Type, object from, object to) => new Log
+            public static Log Create(Guid userId, string Type, object from, object to) => new Log
             {
                 Type = Type,
                 ObjectFrom = JsonConvert.SerializeObject(from),
                 ObjectTo = JsonConvert.SerializeObject(to),
                 Date = DateTime.Now,
+                UserId = userId
             };
         }
     }

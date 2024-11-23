@@ -12,7 +12,7 @@ namespace Domain.Entities.Dtos
             DueDate = task.DueDate;
             Status = task.Status;
             Priority = task.Priority;
-            Comments = task.Comments;
+            Comments = task.Comments.Select(x => x.Value);
         }
         public Guid Id { get; init; }
         public string Title { get; init; }

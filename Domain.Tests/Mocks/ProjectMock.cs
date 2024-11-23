@@ -4,6 +4,6 @@ namespace Domain.Tests.Mocks
 {
     public class ProjectMock : BaseEntityMock<Project>
     {
-        public override Project GetEntity() => Project.Factory.Create();
+        public override Project GetEntity() => Project.Factory.Create(Guid.NewGuid());
     }
 }

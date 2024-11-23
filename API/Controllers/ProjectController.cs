@@ -8,21 +8,21 @@ namespace API.Controllers
     public class ProjectController : BaseController
     {
         private readonly IProjectService _projectService;
-        public ProjectController(IProjectService projectService)
+        public ProjectController(IProjectService projectService, IUserRepository repository) : base(repository)
         {
             _projectService = projectService;
         }
-        [HttpGet("list")]
-        public async Task<IActionResult> ListProjects() => Ok(await _projectService.ListProjects(_loggerUserId));
+        [HttpGet]
+        public async Task<IActionResult> ListProjects() => Ok(await _projectService.ListProjects((await LoggedUser()).Id));
         [HttpPost]
-        public async Task<IActionResult> CreateProject() => Ok(await _projectService.CreateProject(_loggerUserId));
+        public async Task<IActionResult> CreateProject() => Ok(await _projectService.CreateProject((await LoggedUser()).Id));
         [HttpGet("{projectId}/task")]
-        public async Task<IActionResult> ListTasks([FromRoute] Guid projectId) => Ok(await _projectService.ListTasks(projectId, _loggerUserId));
+        public async Task<IActionResult> ListTasks([FromRoute] Guid projectId) => Ok(await _projectService.ListTasks(projectId, (await LoggedUser()).Id));
         [HttpPost("task")]
-        public async Task<IActionResult> CreateTask([FromBody] CreateTaskRequest request) => Ok(await _projectService.CreateTask(request, _loggerUserId));
+        public async Task<IActionResult> CreateTask([FromBody] CreateTaskRequest request) => Ok(await _projectService.CreateTask(request, (await LoggedUser()).Id));
         [HttpPatch("task")]
-        public async Task<IActionResult> UpdateTask([FromBody] UpdateTaskRequest request) => Ok(await _projectService.UpdateTask(request, _loggerUserId));
+        public async Task<IActionResult> UpdateTask([FromBody] UpdateTaskRequest request) => Ok(await _projectService.UpdateTask(request, (await LoggedUser()).Id));
         [HttpDelete("task/{taskId}")]
-        public async Task<IActionResult> RemoveTask([FromRoute] Guid taskId) => Ok(await _projectService.RemoveTask(taskId, _loggerUserId));
+        public async Task<IActionResult> RemoveTask([FromRoute] Guid taskId) => Ok(await _projectService.RemoveTask(taskId, (await LoggedUser()).Id));
     }
 }

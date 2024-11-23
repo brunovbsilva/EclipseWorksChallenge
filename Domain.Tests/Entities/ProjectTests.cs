@@ -18,7 +18,7 @@ namespace Domain.Tests.Entities
         public void ShouldCreate()
         {
             // Arrange & Act
-            var project = Project.Factory.Create();
+            var project = Project.Factory.Create(Guid.NewGuid());
 
             // Assert
             Assert.NotNull(project);
