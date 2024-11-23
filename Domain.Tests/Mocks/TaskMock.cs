@@ -9,9 +9,8 @@ namespace Domain.Tests.Mocks
             var title = _faker.Lorem.Sentence();
             var description = _faker.Lorem.Paragraph();
             var dueDate = _faker.Date.Future();
-            var status = _faker.Random.Enum<TaskStatusEnum>();
             var priority = _faker.Random.Enum<PriorityEnum>();
-            return Domain.Entities.Task.Factory.Create(title, description, dueDate, status, priority);
+            return Domain.Entities.Task.Factory.Create(title, description, dueDate, priority);
         }
     }
 }

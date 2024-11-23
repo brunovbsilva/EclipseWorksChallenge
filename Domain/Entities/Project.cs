@@ -21,14 +21,8 @@ namespace Domain.Entities
             return task;
         }
         public Task AddTask(string title, string description, DateTime dueDate, PriorityEnum priority)
-            => AddTask(Task.Factory.Create(title, description, dueDate, TaskStatusEnum.IN_PROGRESS, priority));
+            => AddTask(Task.Factory.Create(title, description, dueDate, priority));
         public bool HasPendingTask() => Tasks.Any(t => t.Status == TaskStatusEnum.PENDING);
-        public void RemoveTask(Guid taskId)
-        {
-            var task = Tasks.FirstOrDefault(t => t.Id == taskId);
-            if (task is null) throw new ArgumentException("Task not found");
-            Tasks.Remove(task);
-        }
         public void UpdateUser(User user)
         {
             User = user;

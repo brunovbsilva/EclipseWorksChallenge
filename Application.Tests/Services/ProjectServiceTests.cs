@@ -299,8 +299,12 @@ namespace Application.Tests.Services
         #endregion
 
         #region UpdateTask
-        [Fact]
-        public async Task UpdateTask_ShouldUpdateTask()
+        [Theory]
+        [InlineData(true, false, false, true)]
+        [InlineData(true, true, false, false)]
+        [InlineData(false, true, true, false)]
+        [InlineData(false, false, true, true)]
+        public async Task UpdateTask_ShouldUpdateTask(bool title, bool description, bool dueDate, bool status)
         {
             // Arrange
             var user = _userMock.GetEntity();
@@ -309,13 +313,25 @@ namespace Application.Tests.Services
             var task = project.AddTask(taskToAdd.Title, taskToAdd.Description, taskToAdd.DueDate, taskToAdd.Priority);
             _taskRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(task);
             _logRepository.Setup(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()));
+            var request = new UpdateTaskRequest
+            {
+                TaskId = task.Id,
+                Title = title ? _faker.Lorem.Sentence() : null,
+                Description = description ? _faker.Lorem.Paragraph() : null,
+                DueDate = dueDate ? _faker.Date.Future() : null,
+                Status = status ? _faker.Random.Enum<TaskStatusEnum>() : null
+            };
 
             // Act
-            var result = await _service.UpdateTask(new UpdateTaskRequest(), user.Id);
+            var result = await _service.UpdateTask(request, user.Id);
 
             // Assert
             Assert.NotNull(result.Result);
             Assert.IsAssignableFrom<BaseResponse<TaskDto>>(result);
+            Assert.Equal(title ? request.Title : task.Title, result.Result.Title);
+            Assert.Equal(description ? request.Description : task.Description, result.Result.Description);
+            Assert.Equal(dueDate ? request.DueDate : task.DueDate, result.Result.DueDate);
+            Assert.Equal(status ? request.Status : task.Status, result.Result.Status);
             _logRepository.Verify(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()), Times.Once);
         }
         [Fact]
@@ -401,6 +417,42 @@ namespace Application.Tests.Services
             // Assert
             await Assert.ThrowsAsync<ArgumentException>(action);
             _logRepository.Verify(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()), Times.Never);
+        }
+        #endregion
+
+        #region Report
+        [Fact]
+        public async Task Report_ShouldReturnReport()
+        {
+            // Arrange
+            var user = _userMock.GetEntity(RoleEnum.MANAGER);
+            _userRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(user);
+            // Act
+            var result = await _service.Report(user.Id);
+            // Assert
+            Assert.NotNull(result.Result);
+            Assert.IsAssignableFrom<BaseResponse<IEnumerable<ReportResponse>>>(result);
+        }
+        [Fact]
+        public async Task Report_ShouldThrowAnException_WhenUserNotFound()
+        {
+            // Arrange
+            _userRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>()));
+            // Act
+            var action = async () => await _service.Report(Guid.Empty);
+            // Assert
+            await Assert.ThrowsAsync<ArgumentException>(action);
+        }
+        [Fact]
+        public async Task Report_ShouldThrowAnException_WhenUserHasNoPermissions()
+        {
+            // Arrange
+            var user = _userMock.GetEntity(RoleEnum.WORKER);
+            _userRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(user);
+            // Act
+            var action = async () => await _service.Report(user.Id);
+            // Assert
+            await Assert.ThrowsAsync<ArgumentException>(action);
         }
         #endregion
     }

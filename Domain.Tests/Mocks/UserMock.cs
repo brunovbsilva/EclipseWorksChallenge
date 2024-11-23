@@ -5,8 +5,7 @@ namespace Domain.Tests.Mocks
 {
     public class UserMock : BaseEntityMock<User>
     {
-        public override User GetEntity() => User.Factory.Create(
-            _faker.Random.Enum<RoleEnum>()    
-        );
+        public User GetEntity(RoleEnum role) => User.Factory.Create(role);
+        public override User GetEntity() => GetEntity(_faker.Random.Enum<RoleEnum>());
     }
 }

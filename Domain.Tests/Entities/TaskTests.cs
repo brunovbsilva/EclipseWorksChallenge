@@ -21,13 +21,13 @@ namespace Domain.Tests.Entities
                 _faker.Lorem.Sentence(),
                 _faker.Lorem.Paragraph(),
                 _faker.Date.Future(),
-                _faker.Random.Enum<TaskStatusEnum>(),
                 _faker.Random.Enum<PriorityEnum>()
             );
 
             // Assert
             Assert.NotNull(task);
             Assert.IsType<Domain.Entities.Task>(task);
+            Assert.Equal(TaskStatusEnum.IN_PROGRESS, task.Status);
         }
 
         [Fact]

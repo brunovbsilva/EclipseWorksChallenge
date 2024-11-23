@@ -1,12 +1,14 @@
-﻿namespace Domain.Common.Project
+﻿using Domain.Entities;
+
+namespace Domain.Common.Project
 {
     public class ReportResponse
     {
-        public int TotalTasks { get; set; }
-        public int TotalCompletedTasks { get; set; }
-        public int TotalPendingTasks { get; set; }
-        public int TotalOverdueTasks { get; set; }
-        public int TotalComments { get; set; }
-        public int TasksOnLastThirtyDays { get; set; }
+        public Guid UserId { get; set; }
+        public int ActionsOnLastThirtyDays { get; set; }
+        public int TasksCreatedOnLastThirtyDays { get; set; }
+        public int TasksCompletedOnLastThirtyDays { get; set; }
+        public int CommentsOnLastThirtyDays { get; set; }
+        public int ProjectsCreatedOnLastThirtyDays { get; set; }
     }
 }

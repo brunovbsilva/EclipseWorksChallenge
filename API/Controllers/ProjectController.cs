@@ -26,7 +26,7 @@ namespace API.Controllers
         public async Task<IActionResult> RemoveTask([FromRoute] Guid taskId) => Ok(await _projectService.RemoveTask(taskId, (await LoggedUser()).Id));
         [HttpPost("task/add-comment")]
         public async Task<IActionResult> AddComment([FromBody] AddCommentRequest request) => Ok(await _projectService.AddComment(request, (await LoggedUser()).Id));
-        [HttpPost("{projectId}/report")]
-        public async Task<IActionResult> Report([FromBody] Guid projectId) => Ok(await _projectService.Report(projectId, (await LoggedUser()).Id));
+        [HttpGet("report")]
+        public async Task<IActionResult> Report() => Ok(await _projectService.Report((await LoggedUser()).Id));
     }
 }

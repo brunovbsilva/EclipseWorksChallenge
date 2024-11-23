@@ -3,6 +3,7 @@ using Domain.Common;
 using Domain.Common.Project;
 using Domain.Entities;
 using Domain.Entities.Dtos;
+using Domain.Entities.Enums;
 using Domain.Repositories;
 using Infra.Utils.Constans;
 
@@ -74,10 +75,16 @@ namespace Application.Services
             var task = await _taskRepository.GetByIDAsync(request.TaskId);
             if (task == null) throw new ArgumentException("Task not found");
             if (task.Project.UserId != _userId) throw new ArgumentException("The task do not belongs to you");
+            if (task.Status == TaskStatusEnum.DONE) throw new ArgumentException("Completed tasks cannot be updated");
             var taskBefore = (TaskDto)task;
-            task.Update(request.Title, request.Description, request.DueDate);
+            task.Update(request.Title, request.Description, request.DueDate, request.Status);
             await _taskRepository.SaveChangesAsync();
-            await AddLog(_userId, TaskConstants.UPDATE_TASK, taskBefore, (TaskDto)task);
+            await AddLog(
+                _userId, 
+                request.Status == TaskStatusEnum.DONE ? TaskConstants.COMPLETE_TASK : TaskConstants.UPDATE_TASK,
+                taskBefore,
+                (TaskDto)task
+            );
             return new GenericResponse<TaskDto>(task);
         }
 
@@ -92,7 +99,15 @@ namespace Application.Services
             await AddLog(_userId, TaskConstants.ADD_COMMENT, commentsBefore, task.Comments.Select(x => x.Value));
             return new GenericResponse<object>(null);
         }
+        public async Task<BaseResponse<IEnumerable<ReportResponse>>> Report(Guid _userId)
+        {
+            var user = await _userRepository.GetByIDAsync(_userId);
+            if (user == null) throw new ArgumentException("User not found");
+            if (user.Role != RoleEnum.MANAGER) throw new ArgumentException("You do not have permission to access this resource");
+            return new GenericResponse<IEnumerable<ReportResponse>>(await _userRepository.GetReport());
+        }
         private async System.Threading.Tasks.Task AddLog(Guid _userId, string action, object? from, object? to)
             => await _logRepository.InsertWithSaveChangesAsync(Log.Factory.Create(_userId, action, from, to));
+
     }
 }

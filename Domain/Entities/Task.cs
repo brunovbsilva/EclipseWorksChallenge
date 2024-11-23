@@ -17,13 +17,13 @@ namespace Domain.Entities
 
         public static class Factory
         {
-            public static Task Create(string title, string description, DateTime dueDate, TaskStatusEnum status, PriorityEnum priority)
+            public static Task Create(string title, string description, DateTime dueDate, PriorityEnum priority)
                 => new Task
                 {
                     Title = title,
                     Description = description,
                     DueDate = dueDate,
-                    Status = status,
+                    Status = TaskStatusEnum.IN_PROGRESS,
                     Priority = priority
                 };
         }
@@ -37,11 +37,12 @@ namespace Domain.Entities
         }
         public void SetStatus(TaskStatusEnum status) => Status = status;
 
-        public void Update(string title, string description, DateTime dueDate)
+        public void Update(string? title, string? description, DateTime? dueDate, TaskStatusEnum? status)
         {
-            Title = title;
-            Description = description;
-            DueDate = dueDate;
+            Title = title ?? Title;
+            Description = description ?? Description;
+            DueDate = dueDate ?? DueDate;
+            Status = status ?? Status;
         }
         public void UpdateProject(Project project){
             Project = project;
