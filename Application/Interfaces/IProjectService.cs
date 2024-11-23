@@ -12,5 +12,6 @@ namespace Application.Interfaces
         Task<BaseResponse<TaskDto>> CreateTask(CreateTaskRequest request, Guid _userId);
         Task<BaseResponse<TaskDto>> UpdateTask(UpdateTaskRequest request, Guid _userId);
         Task<BaseResponse<object>> RemoveTask(Guid taskId, Guid _userId);
+        Task<BaseResponse<object>> AddComment(AddCommentRequest request, Guid _userId);
     }
 }

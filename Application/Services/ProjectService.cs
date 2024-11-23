@@ -80,6 +80,11 @@ namespace Application.Services
             await AddLog(_userId, TaskConstants.UPDATE_TASK, taskBefore, (TaskDto)task);
             return new GenericResponse<TaskDto>(task);
         }
+
+        public async Task<BaseResponse<object>> AddComment(AddCommentRequest request, Guid _userId)
+        {
+            throw new NotImplementedException();
+        }
         private async System.Threading.Tasks.Task AddLog(Guid _userId, string action, object? from, object? to)
             => await _logRepository.InsertWithSaveChangesAsync(Log.Factory.Create(_userId, action, from, to));
     }
