@@ -83,7 +83,14 @@ namespace Application.Services
 
         public async Task<BaseResponse<object>> AddComment(AddCommentRequest request, Guid _userId)
         {
-            throw new NotImplementedException();
+            var task = await _taskRepository.GetByIDAsync(request.TaskId);
+            if (task == null) throw new ArgumentException("Task not found");
+            if (task.Project.UserId != _userId) throw new ArgumentException("The task do not belongs to you");
+            var commentsBefore = task.Comments.Any() ? task.Comments.Select(x => x.Value).ToList() : null;
+            task.AddComment(request.Comment);
+            await _taskRepository.SaveChangesAsync();
+            await AddLog(_userId, TaskConstants.ADD_COMMENT, commentsBefore, task.Comments.Select(x => x.Value));
+            return new GenericResponse<object>(null);
         }
         private async System.Threading.Tasks.Task AddLog(Guid _userId, string action, object? from, object? to)
             => await _logRepository.InsertWithSaveChangesAsync(Log.Factory.Create(_userId, action, from, to));

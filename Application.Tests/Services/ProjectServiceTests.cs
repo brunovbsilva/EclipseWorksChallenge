@@ -351,5 +351,57 @@ namespace Application.Tests.Services
             _logRepository.Verify(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()), Times.Never);
         }
         #endregion
+
+        #region AddComment
+        [Fact]
+        public async Task AddComment_ShouldAddComment()
+        {
+            // Arrange
+            var user = _userMock.GetEntity();
+            var project = user.AddProject();
+            var taskToAdd = _taskMock.GetEntity();
+            var task = project.AddTask(taskToAdd.Title, taskToAdd.Description, taskToAdd.DueDate, taskToAdd.Priority);
+            _taskRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(task);
+            _logRepository.Setup(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()));
+
+            // Act
+            var result = await _service.AddComment(new AddCommentRequest(), user.Id);
+
+            // Assert
+            Assert.IsAssignableFrom<BaseResponse<object>>(result);
+            _logRepository.Verify(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()), Times.Once);
+        }
+        [Fact]
+        public async Task AddComment_ShouldThrowAnException_WhenTaskNotFound()
+        {
+            // Arrange
+            _taskRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>()));
+
+            // Act
+            var action = async () => await _service.AddComment(new AddCommentRequest(), Guid.Empty);
+
+            // Assert
+            await Assert.ThrowsAsync<ArgumentException>(action);
+            _logRepository.Verify(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()), Times.Never);
+        }
+        [Fact]
+        public async Task AddComment_ShouldThrowAnException_WhenTaskDoNotBelongsToUser()
+        {
+            // Arrange
+            var user = _userMock.GetEntity();
+            var project = _projectMock.GetEntity();
+            var taskToAdd = _taskMock.GetEntity();
+            var task = project.AddTask(taskToAdd.Title, taskToAdd.Description, taskToAdd.DueDate, taskToAdd.Priority);
+            _taskRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(task);
+            _logRepository.Setup(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()));
+
+            // Act
+            var action = async () => await _service.AddComment(new AddCommentRequest(), user.Id);
+
+            // Assert
+            await Assert.ThrowsAsync<ArgumentException>(action);
+            _logRepository.Verify(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()), Times.Never);
+        }
+        #endregion
     }
 }
