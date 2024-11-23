@@ -12,8 +12,8 @@ namespace Infra.Data.Configurations
 
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).HasColumnName("Id").HasColumnType("uniqueidentifier").ValueGeneratedNever().IsRequired();
-            builder.Property(x => x.ObjectFrom).HasColumnName("From").HasColumnType("varchar(max)").IsRequired();
-            builder.Property(x => x.ObjectTo).HasColumnName("To").HasColumnType("varchar(max)").IsRequired();
+            builder.Property(x => x.ObjectFrom).HasColumnName("From").HasColumnType("varchar(max)");
+            builder.Property(x => x.ObjectTo).HasColumnName("To").HasColumnType("varchar(max)");
             builder.Property(x => x.Type).HasColumnName("Type").HasColumnType("varchar(50)").IsRequired();
             builder.Property(x => x.Date).HasColumnName("Date").HasColumnType("datetime").IsRequired();
             builder.Property(x => x.UserId).HasColumnName("UserId").HasColumnType("uniqueidentifier").IsRequired();

@@ -13,6 +13,7 @@ namespace Application.Tests.Services
         private readonly Mock<IUserRepository> _userRepository;
         private readonly Mock<IProjectRepository> _projectRepository;
         private readonly Mock<ITaskRepository> _taskRepository;
+        private readonly Mock<ILogRepository> _logRepository;
         private readonly UserMock _userMock;
         private readonly ProjectMock _projectMock;
         private readonly TaskMock _taskMock;
@@ -23,10 +24,11 @@ namespace Application.Tests.Services
             _userRepository = new Mock<IUserRepository>();
             _projectRepository = new Mock<IProjectRepository>();
             _taskRepository = new Mock<ITaskRepository>();
+            _logRepository = new Mock<ILogRepository>();
             _userMock = new();
             _projectMock = new();
             _taskMock = new();
-            _service = new(_userRepository.Object, _projectRepository.Object, _taskRepository.Object);
+            _service = new(_userRepository.Object, _projectRepository.Object, _taskRepository.Object, _logRepository.Object);
             _faker = new("pt_BR");
 
         }
@@ -38,6 +40,7 @@ namespace Application.Tests.Services
             // Arrange
             var user = _userMock.GetEntity();
             _userRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(user);
+            _logRepository.Setup(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()));
 
             // Act
             var result = await _service.CreateProject(user.Id);
@@ -45,6 +48,7 @@ namespace Application.Tests.Services
             // Assert
             Assert.NotNull(result.Result);
             Assert.IsAssignableFrom<BaseResponse<ProjectDto>>(result);
+            _logRepository.Verify(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()), Times.Once);
         }
         [Fact]
         public async Task CreateProject_ShouldThrowAnException_WhenUserNotFound()
@@ -57,6 +61,7 @@ namespace Application.Tests.Services
 
             // Assert
             await Assert.ThrowsAsync<ArgumentException>(action);
+            _logRepository.Verify(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()), Times.Never);
         }
         #endregion
 
@@ -70,6 +75,7 @@ namespace Application.Tests.Services
             _projectRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(project);
             _userRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(user);
             _taskRepository.Setup(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Task>()));
+            _logRepository.Setup(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()));
 
             // Act
             var result = await _service.CreateTask(new CreateTaskRequest(), user.Id);
@@ -77,6 +83,7 @@ namespace Application.Tests.Services
             // Assert
             Assert.NotNull(result.Result);
             Assert.IsAssignableFrom<BaseResponse<TaskDto>>(result);
+            _logRepository.Verify(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()), Times.Once);
         }
 
         [Fact]
@@ -90,6 +97,7 @@ namespace Application.Tests.Services
             var action = async () => await _service.CreateTask(GetCreateTaskMock(Guid.Empty), user.Id);
             // Assert
             await Assert.ThrowsAsync<ArgumentException>(action);
+            _logRepository.Verify(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()), Times.Never);
         }
 
         [Fact]
@@ -104,6 +112,7 @@ namespace Application.Tests.Services
             var action = async () => await _service.CreateTask(GetCreateTaskMock(project.Id), user.Id);
             // Assert
             await Assert.ThrowsAsync<ArgumentException>(action);
+            _logRepository.Verify(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()), Times.Never);
         }
 
         [Fact]
@@ -116,10 +125,13 @@ namespace Application.Tests.Services
             foreach (var task in tasks) project.AddTask(task);
             _projectRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(project);
             _userRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(user);
+
             // Act
             var action = async () => await _service.CreateTask(GetCreateTaskMock(project.Id), user.Id);
+
             // Assert
             await Assert.ThrowsAsync<ArgumentException>(action);
+            _logRepository.Verify(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()), Times.Never);
         }
 
         private CreateTaskRequest GetCreateTaskMock(Guid projectId)
@@ -143,8 +155,10 @@ namespace Application.Tests.Services
             var user = _userMock.GetEntity();
             for (int i = 0; i < 5; i++) user.AddProject();
             _userRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(user);
+
             // Act
             var result = await _service.ListProjects(user.Id);
+
             // Assert
             Assert.NotNull(result.Result);
             Assert.IsAssignableFrom<BaseResponse<IEnumerable<ProjectDto>>>(result);
@@ -154,8 +168,10 @@ namespace Application.Tests.Services
         {
             // Arrange
             _userRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>()));
+
             // Act
             var action = async () => await _service.ListProjects(Guid.Empty);
+
             // Assert
             await Assert.ThrowsAsync<ArgumentException>(action);
         }
@@ -171,8 +187,10 @@ namespace Application.Tests.Services
             for (int i = 0; i < 5; i++) project.AddTask(_taskMock.GetEntity());
             _projectRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(project);
             _userRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(user);
+
             // Act
             var result = await _service.ListTasks(project.Id, user.Id);
+
             // Assert
             Assert.NotNull(result.Result);
             Assert.IsAssignableFrom<BaseResponse<IEnumerable<TaskDto>>>(result);
@@ -184,8 +202,10 @@ namespace Application.Tests.Services
             var user = _userMock.GetEntity();
             _projectRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>()));
             _userRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(user);
+
             // Act
             var action = async () => await _service.ListTasks(Guid.Empty, user.Id);
+
             // Assert
             await Assert.ThrowsAsync<ArgumentException>(action);
         }
@@ -197,8 +217,10 @@ namespace Application.Tests.Services
             var project = user.AddProject();
             _projectRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(project);
             _userRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>()));
+
             // Act
             var action = async () => await _service.ListTasks(project.Id, Guid.Empty);
+
             // Assert
             await Assert.ThrowsAsync<ArgumentException>(action);
         }
@@ -210,8 +232,10 @@ namespace Application.Tests.Services
             var project = _projectMock.GetEntity();
             _projectRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(project);
             _userRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(user);
+
             // Act
             var action = async () => await _service.ListTasks(project.Id, user.Id);
+
             // Assert
             await Assert.ThrowsAsync<ArgumentException>(action);
         }
@@ -228,11 +252,15 @@ namespace Application.Tests.Services
             var task = project.AddTask(taskToAdd.Title, taskToAdd.Description, taskToAdd.DueDate, taskToAdd.Priority);
             _taskRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(task);
             _projectRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(project);
+            _logRepository.Setup(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()));
+
             // Act
             var result = await _service.RemoveTask(task.Id, user.Id);
+
             // Assert
             Assert.Null(result.Result);
             Assert.IsAssignableFrom<BaseResponse<object>>(result);
+            _logRepository.Verify(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()), Times.Once);
         }
         [Fact]
         public async Task RemoveTask_ShouldThrowAnException_WhenTaskNotFound()
@@ -242,10 +270,13 @@ namespace Application.Tests.Services
             var project = user.AddProject();
             _taskRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>()));
             _projectRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(project);
+
             // Act
             var action = async () => await _service.RemoveTask(Guid.Empty, user.Id);
+
             // Assert
             await Assert.ThrowsAsync<ArgumentException>(action);
+            _logRepository.Verify(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()), Times.Never);
         }
         [Fact]
         public async Task RemoveTask_ShouldThrowAnException_WhenTaskDoNotBelongsToUser()
@@ -257,10 +288,13 @@ namespace Application.Tests.Services
             var task = project.AddTask(taskToAdd.Title, taskToAdd.Description, taskToAdd.DueDate, taskToAdd.Priority);
             _taskRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(task);
             _projectRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(project);
+
             // Act
             var action = async () => await _service.RemoveTask(task.Id, Guid.NewGuid());
+
             // Assert
             await Assert.ThrowsAsync<ArgumentException>(action);
+            _logRepository.Verify(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()), Times.Never);
         }
         #endregion
 
@@ -274,11 +308,15 @@ namespace Application.Tests.Services
             var taskToAdd = _taskMock.GetEntity();
             var task = project.AddTask(taskToAdd.Title, taskToAdd.Description, taskToAdd.DueDate, taskToAdd.Priority);
             _taskRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(task);
+            _logRepository.Setup(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()));
+
             // Act
             var result = await _service.UpdateTask(new UpdateTaskRequest(), user.Id);
+
             // Assert
             Assert.NotNull(result.Result);
             Assert.IsAssignableFrom<BaseResponse<TaskDto>>(result);
+            _logRepository.Verify(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()), Times.Once);
         }
         [Fact]
         public async Task UpdateTask_ShouldThrowAnException_WhenTaskNotFound()
@@ -286,10 +324,13 @@ namespace Application.Tests.Services
             // Arrange
             var user = _userMock.GetEntity();
             _taskRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>()));
+
             // Act
             var action = async () => await _service.UpdateTask(new UpdateTaskRequest(), user.Id);
+
             // Assert
             await Assert.ThrowsAsync<ArgumentException>(action);
+            _logRepository.Verify(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()), Times.Never);
         }
         [Fact]
         public async Task UpdateTask_ShouldThrowAnException_WhenTaskDoNotBelongsToUser()
@@ -301,10 +342,13 @@ namespace Application.Tests.Services
             var task = project.AddTask(taskToAdd.Title, taskToAdd.Description, taskToAdd.DueDate, taskToAdd.Priority);
             _taskRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(task);
             _projectRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(project);
+
             // Act
             var action = async () => await _service.UpdateTask(new UpdateTaskRequest(), Guid.NewGuid());
+
             // Assert
             await Assert.ThrowsAsync<ArgumentException>(action);
+            _logRepository.Verify(x => x.InsertWithSaveChangesAsync(It.IsAny<Domain.Entities.Log>()), Times.Never);
         }
         #endregion
     }

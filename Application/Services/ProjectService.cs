@@ -1,8 +1,10 @@
 ﻿using Application.Interfaces;
 using Domain.Common;
 using Domain.Common.Project;
+using Domain.Entities;
 using Domain.Entities.Dtos;
 using Domain.Repositories;
+using Infra.Utils.Constans;
 
 namespace Application.Services
 {
@@ -11,19 +13,23 @@ namespace Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly ITaskRepository _taskRepository;
+        private readonly ILogRepository _logRepository;
 
-        public ProjectService(IUserRepository userRepository, IProjectRepository projectRepository, ITaskRepository taskRepository)
+        public ProjectService(IUserRepository userRepository, IProjectRepository projectRepository, ITaskRepository taskRepository, ILogRepository logRepository)
         {
             _userRepository = userRepository;
             _projectRepository = projectRepository;
             _taskRepository = taskRepository;
+            _logRepository = logRepository;
         }
+
         public async Task<BaseResponse<ProjectDto>> CreateProject(Guid _userId)
         {
             var user = await _userRepository.GetByIDAsync(_userId);
             if (user == null) throw new ArgumentException("User not found");
             var project = user.AddProject();
             await _userRepository.SaveChangesAsync();
+            await AddLog(_userId, ProjectConstants.CREATE_PROJECT, null, (ProjectDto)project);
             return new GenericResponse<ProjectDto>(project);
         }
 
@@ -34,6 +40,7 @@ namespace Application.Services
             if (project.UserId != _userId) throw new ArgumentException("The project do not belongs to you");
             var task = project.AddTask(request.Title, request.Description, request.DueDate, request.Priority);
             await _projectRepository.SaveChangesAsync();
+            await AddLog(_userId, TaskConstants.CREATE_TASK, null, (TaskDto)task);
             return new GenericResponse<TaskDto>(task);
         }
 
@@ -57,6 +64,7 @@ namespace Application.Services
             var task = await _taskRepository.GetByIDAsync(taskId);
             if (task == null) throw new ArgumentException("Task not found");
             if (task.Project.UserId != _userId) throw new ArgumentException("The task do not belongs to you");
+            await AddLog(_userId, TaskConstants.DELETE_TASK, (TaskDto)task, null);
             await _taskRepository.DeleteAsync(task);
             return new GenericResponse<object>(null);
         }
@@ -66,9 +74,13 @@ namespace Application.Services
             var task = await _taskRepository.GetByIDAsync(request.TaskId);
             if (task == null) throw new ArgumentException("Task not found");
             if (task.Project.UserId != _userId) throw new ArgumentException("The task do not belongs to you");
+            var taskBefore = (TaskDto)task;
             task.Update(request.Title, request.Description, request.DueDate);
             await _taskRepository.SaveChangesAsync();
+            await AddLog(_userId, TaskConstants.UPDATE_TASK, taskBefore, (TaskDto)task);
             return new GenericResponse<TaskDto>(task);
         }
+        private async System.Threading.Tasks.Task AddLog(Guid _userId, string action, object? from, object? to)
+            => await _logRepository.InsertWithSaveChangesAsync(Log.Factory.Create(_userId, action, from, to));
     }
 }
