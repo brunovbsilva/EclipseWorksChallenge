@@ -16,7 +16,9 @@ namespace Infra.IoC
         {
             #region Services
 
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<IProjectService, ProjectService>();
+            services.AddScoped<ITaskService, TaskService>();
 
             #endregion
 
