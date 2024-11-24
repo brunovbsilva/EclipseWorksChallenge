@@ -9,31 +9,12 @@ using Infra.Utils.Constans;
 
 namespace Application.Services
 {
-    public class ProjectService : IProjectService
+    public class ProjectService(IProjectRepository projectRepository, ILogRepository logRepository) : IProjectService
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IProjectRepository _projectRepository;
-        private readonly ITaskRepository _taskRepository;
-        private readonly ILogRepository _logRepository;
-
-        public ProjectService(IUserRepository userRepository, IProjectRepository projectRepository, ITaskRepository taskRepository, ILogRepository logRepository)
-        {
-            _userRepository = userRepository;
-            _projectRepository = projectRepository;
-            _taskRepository = taskRepository;
-            _logRepository = logRepository;
-        }
-
-        public async Task<BaseResponse<ProjectDto>> CreateProject(Guid _userId)
-        {
-            var user = await _userRepository.GetByIDAsync(_userId);
-            if (user == null) throw new ArgumentException("User not found");
-            var project = user.AddProject();
-            await _userRepository.SaveChangesAsync();
-            await AddLog(_userId, ProjectConstants.CREATE_PROJECT, null, (ProjectDto)project);
-            return new GenericResponse<ProjectDto>(project);
-        }
-
+        private readonly IProjectRepository _projectRepository = projectRepository;
+        private readonly ILogRepository _logRepository = logRepository;
+        
+        #region Project Methods
         public async Task<BaseResponse<TaskDto>> CreateTask(CreateTaskRequest request, Guid _userId)
         {
             var project = await _projectRepository.GetByIDAsync(request.ProjectId);
@@ -44,14 +25,6 @@ namespace Application.Services
             await AddLog(_userId, TaskConstants.CREATE_TASK, null, (TaskDto)task);
             return new GenericResponse<TaskDto>(task);
         }
-
-        public async Task<BaseResponse<IEnumerable<ProjectDto>>> ListProjects(Guid _userId)
-        {
-            var user = await _userRepository.GetByIDAsync(_userId);
-            if (user == null) throw new ArgumentException("User not found");
-            return new GenericResponse<IEnumerable<ProjectDto>>(user.Projects.Select(p => (ProjectDto)p));
-        }
-
         public async Task<BaseResponse<IEnumerable<TaskDto>>> ListTasks(Guid projectId, Guid _userId)
         {
             var project = await _projectRepository.GetByIDAsync(projectId);
@@ -59,63 +32,11 @@ namespace Application.Services
             project.CheckForListTask(_userId);
             return new GenericResponse<IEnumerable<TaskDto>>(project.Tasks.Select(t => (TaskDto)t));
         }
-
-        public async Task<BaseResponse<object>> RemoveTask(Guid taskId, Guid _userId)
-        {
-            var task = await _taskRepository.GetByIDAsync(taskId);
-            if (task == null) throw new ArgumentException("Task not found");
-            task.CheckForRemove(_userId);
-            await _taskRepository.DeleteAsync(task);
-            await AddLog(_userId, TaskConstants.DELETE_TASK, (TaskDto)task, null);
-            return new GenericResponse<object>(null);
-        }
-
-        public async Task<BaseResponse<TaskDto>> UpdateTask(UpdateTaskRequest request, Guid _userId)
-        {
-            var task = await _taskRepository.GetByIDAsync(request.TaskId);
-            if (task == null) throw new ArgumentException("Task not found");
-            task.CheckForUpdate(_userId);
-            var taskBefore = (TaskDto)task;
-            task.Update(request.Title, request.Description, request.DueDate, request.Status);
-            await _taskRepository.SaveChangesAsync();
-            await AddLog(
-                _userId, 
-                request.Status == TaskStatusEnum.DONE ? TaskConstants.COMPLETE_TASK : TaskConstants.UPDATE_TASK,
-                taskBefore,
-                (TaskDto)task
-            );
-            return new GenericResponse<TaskDto>(task);
-        }
-
-        public async Task<BaseResponse<object>> AddComment(AddCommentRequest request, Guid _userId)
-        {
-            var task = await _taskRepository.GetByIDAsync(request.TaskId);
-            if (task == null) throw new ArgumentException("Task not found");
-            task.CheckForComment(_userId);
-            var commentsBefore = task.Comments.Any() ? task.Comments.Select(x => x.Value).ToList() : null;
-            task.AddComment(request.Comment);
-            await _taskRepository.SaveChangesAsync();
-            await AddLog(_userId, TaskConstants.ADD_COMMENT, commentsBefore, task.Comments.Select(x => x.Value));
-            return new GenericResponse<object>(null);
-        }
-        public async Task<BaseResponse<IEnumerable<ReportResponse>>> Report(Guid _userId)
-        {
-            var user = await _userRepository.GetByIDAsync(_userId);
-            if (user == null) throw new ArgumentException("User not found");
-            user.CheckForReport();
-            return new GenericResponse<IEnumerable<ReportResponse>>(await _userRepository.GetReport());
-        }
-        public async Task<BaseResponse<object>> RemoveProject(Guid projectId, Guid _userId)
-        {
-            var user = await _userRepository.GetByIDAsync(_userId);
-            if (user == null) throw new ArgumentException("User not found");
-            var project = user.RemoveProject(projectId);
-            await _userRepository.SaveChangesAsync();
-            await AddLog(_userId, ProjectConstants.DELETE_PROJECT, (ProjectDto)project, null);
-            return new GenericResponse<object>(null);
-        }
+        #endregion
+        #region Private Methods
         private async System.Threading.Tasks.Task AddLog(Guid _userId, string action, object? from, object? to)
             => await _logRepository.InsertWithSaveChangesAsync(Log.Factory.Create(_userId, action, from, to));
+        #endregion
 
     }
 }
