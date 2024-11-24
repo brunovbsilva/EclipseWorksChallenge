@@ -23,12 +23,13 @@ namespace Domain.Entities
             return project;
         }
 
-        public void RemoveProject(Guid projectId)
+        public Project RemoveProject(Guid projectId)
         {
             var project = Projects.FirstOrDefault(p => p.Id == projectId);
-            if (project is null) throw new ArgumentException("Project not found");
+            if (project is null) throw new ArgumentException("Project not found, or its not yours");
             if (project.HasPendingTask()) throw new ArgumentException("Project has pending tasks, you should finish them first");
             Projects.Remove(project);
+            return project;
         }
 
         public void CheckForReport()

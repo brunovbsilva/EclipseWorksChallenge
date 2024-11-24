@@ -16,6 +16,8 @@ namespace API.Controllers
         public async Task<IActionResult> ListProjects() => Ok(await _projectService.ListProjects((await LoggedUser()).Id));
         [HttpPost]
         public async Task<IActionResult> CreateProject() => Ok(await _projectService.CreateProject((await LoggedUser()).Id));
+        [HttpDelete("{projectId}")]
+        public async Task<IActionResult> RemoveProject([FromRoute] Guid projectId) => Ok(await _projectService.RemoveProject(projectId, (await LoggedUser()).Id));
         [HttpGet("{projectId}/task")]
         public async Task<IActionResult> ListTasks([FromRoute] Guid projectId) => Ok(await _projectService.ListTasks(projectId, (await LoggedUser()).Id));
         [HttpPost("task")]

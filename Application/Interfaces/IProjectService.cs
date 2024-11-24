@@ -14,5 +14,6 @@ namespace Application.Interfaces
         Task<BaseResponse<object>> RemoveTask(Guid taskId, Guid _userId);
         Task<BaseResponse<object>> AddComment(AddCommentRequest request, Guid _userId);
         Task<BaseResponse<IEnumerable<ReportResponse>>> Report(Guid _userId);
+        Task<BaseResponse<object>> RemoveProject(Guid projectId, Guid _userId);
     }
 }

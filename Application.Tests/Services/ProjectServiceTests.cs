@@ -455,5 +455,59 @@ namespace Application.Tests.Services
             await Assert.ThrowsAsync<ArgumentException>(action);
         }
         #endregion
+
+        #region RemoveProject
+        [Fact]
+        public async Task RemoveProject_ShouldRemove()
+        {
+            // Arrange
+            var user = _userMock.GetEntity();
+            var project = user.AddProject();
+            _userRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(user);
+
+            // Act
+            var result = await _service.RemoveProject(project.Id, user.Id);
+
+            // Assert
+            Assert.Null(result.Result);
+            Assert.False(result.HasErrors);
+            Assert.IsAssignableFrom<BaseResponse<object>>(result);
+        }
+        [Fact]
+        public async Task RemoveProject_ShouldThrowException_WhenUserNotFound()
+        {
+            // Arrange
+            _userRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>()));
+            // Act
+            var action = async () => await _service.RemoveProject(Guid.Empty, Guid.Empty);
+            // Assert
+            await Assert.ThrowsAsync<ArgumentException>(action);
+        }
+        [Fact]
+        public async Task RemoveProject_ShouldThrowException_WhenNoProjectFound()
+        {
+            // Arrange
+            var user = _userMock.GetEntity();
+            _userRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(user);
+            // Act
+            var action = async () => await _service.RemoveProject(Guid.Empty, user.Id);
+            // Assert
+            await Assert.ThrowsAsync<ArgumentException>(action);
+        }
+        [Fact]
+        public async Task RemoveProject_ShouldThrowException_WhenProjectHasPendingTasks()
+        {
+            // Arrange
+            var user = _userMock.GetEntity();
+            var project = _projectMock.GetEntity();
+            var task = _taskMock.GetEntity();
+            task.SetStatus(TaskStatusEnum.PENDING);
+            _userRepository.Setup(x => x.GetByIDAsync(It.IsAny<Guid>())).ReturnsAsync(user);
+            // Act
+            var action = async () => await _service.RemoveProject(project.Id, user.Id);
+            // Assert
+            await Assert.ThrowsAsync<ArgumentException>(action);
+        }
+        #endregion
     }
 }

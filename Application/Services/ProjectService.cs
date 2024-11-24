@@ -65,8 +65,8 @@ namespace Application.Services
             var task = await _taskRepository.GetByIDAsync(taskId);
             if (task == null) throw new ArgumentException("Task not found");
             task.CheckForRemove(_userId);
-            await AddLog(_userId, TaskConstants.DELETE_TASK, (TaskDto)task, null);
             await _taskRepository.DeleteAsync(task);
+            await AddLog(_userId, TaskConstants.DELETE_TASK, (TaskDto)task, null);
             return new GenericResponse<object>(null);
         }
 
@@ -104,6 +104,15 @@ namespace Application.Services
             if (user == null) throw new ArgumentException("User not found");
             user.CheckForReport();
             return new GenericResponse<IEnumerable<ReportResponse>>(await _userRepository.GetReport());
+        }
+        public async Task<BaseResponse<object>> RemoveProject(Guid projectId, Guid _userId)
+        {
+            var user = await _userRepository.GetByIDAsync(_userId);
+            if (user == null) throw new ArgumentException("User not found");
+            var project = user.RemoveProject(projectId);
+            await _userRepository.SaveChangesAsync();
+            await AddLog(_userId, ProjectConstants.DELETE_PROJECT, (ProjectDto)project, null);
+            return new GenericResponse<object>(null);
         }
         private async System.Threading.Tasks.Task AddLog(Guid _userId, string action, object? from, object? to)
             => await _logRepository.InsertWithSaveChangesAsync(Log.Factory.Create(_userId, action, from, to));
