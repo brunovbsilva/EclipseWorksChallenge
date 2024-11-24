@@ -22,7 +22,7 @@ Este é um projeto proposto pela **EclipseWorks** como parte do processo de aval
 
 ### 📝 **Postman Collection**
 
-[Baixar Collection](https://drive.google.com/file/d/1OngGICsW2S_8doC4KLDnLMSr4UHUyYLK/view?usp=sharing)
+[Collection](https://www.postman.com/brunovbs/eclipseworkschallenge/overview)
 
 ---
 
@@ -41,6 +41,12 @@ Durante o desenvolvimento, identificamos algumas inconsistências entre as regra
 
 4. **Histórico e Logs**:
    - Existe a necessidade de histórico de alterações e logs de ações realizadas, mas o modelo proposto não inclui requisições para salvar logs no banco de dados.
+   
+5. **Deleção de projetos**
+   - Existem regras de negócio para deleção de projetos, porém, não há endpoints propostos para o mesmo
+  
+6. **Regras de tasks**
+   - Há limite para tasks em projetos, porém, não há especificação de status ou prioridade no limite, então, um projeto será inutilizável mesmo se tiver 20 tarefas concluídas?
 
 ---
 
